@@ -13,7 +13,7 @@
  
 #map {
   width: 100%;
- height: 90vh;
+ height: 100vh;
 }
  
 .map-wrapper {
@@ -28,4 +28,54 @@
     left: 50%;
     margin-left: -21px;
     margin-top: -41px;
+  }
+
+   .current-location {
+    position: absolute;
+    // background-color: #fff !important;
+    right: 3%;
+    width: 30px;
+    bottom: 40% !important;
+    button {
+      background-color: #fff;
+      height: 2.9rem;
+      width: 2.9rem;
+      img {
+        width: 20px;
+      }
+    }
+    .button-ios.activated {
+      background-color: transparent;
+    }
+  }
+
+
+ .go-back-button, .search-button {
+    background-color: transparent !important;
+    box-shadow: none;
+    .activated {
+      background-color: transparent !important;
+    }
+  }
+  .search-button {
+    ion-icon {
+      font-size: 2.7rem !important;
+    }
+  }
+  .back-btn, .search-btn {
+    position: absolute;
+    ion-icon {
+      color: #000;
+    }
+  }
+  .search-btn {
+    left: 85%;
+  }
+  .search-box {
+    position: absolute;
+    top: 2%;
+    z-index: 999;
+  }
+  ion-textarea {
+    font-size: 14px;
   }

@@ -2,7 +2,8 @@ import { Component, ViewChild, ElementRef  } from '@angular/core';
  
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
- 
+import {Observable,of, from } from 'rxjs';
+
 declare var google;
 
 @Component({
@@ -12,9 +13,10 @@ declare var google;
 })
 export class HomePage {
 @ViewChild('map', {static: false}) mapElement: ElementRef;
+@ViewChild('searchbar', { static: false, read: ElementRef }) searchbar: ElementRef;
   map: any;
   address:string;
-
+addressElement: HTMLInputElement = null;
   constructor(
   	private geolocation: Geolocation,
   	private nativeGeocoder: NativeGeocoder
@@ -25,6 +27,7 @@ export class HomePage {
   }
 
   loadMap() {
+  	let that = this;
     this.geolocation.getCurrentPosition().then((resp) => {
       let latLng = new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude);
       let mapOptions = {
@@ -42,9 +45,63 @@ export class HomePage {
     //    this.getAddressFromCoords(this.map.center.lat(), this.map.center.lng())
     	this.getAddress(this.map.center.lat(), this.map.center.lng())
       });
- 
+
+     // Map drag started
+    this.map.addListener('dragstart', function() {
+      // console.log('Drag start');
+    });
+    // Map dragging
+    this.map.addListener('drag', function() {
+      that.address = 'Searching...';
+    });
+    //Reload markers every time the map moves
+    this.map.addListener('dragend', function() {
+      let map_center = that.getMapCenter();
+      let latLngObj = {'lat': map_center.lat(), 'long': map_center.lng() };
+      // console.log(latLngObj);
+      that.getAddress(map_center.lat(), map_center.lng());
+    });
+ 	this.initAutocomplete();
     }).catch((error) => {
       console.log('Error getting location', error);
+    });
+  }
+
+
+   getMapCenter(){
+    return this.map.getCenter()
+  }
+
+  initAutocomplete(): void {
+    this.addressElement = this.searchbar.nativeElement.querySelector('.searchbar-input');
+    this.createAutocomplete(this.addressElement).subscribe((location) => {
+      console.log('Searchdata', location);
+      let latLngObj = {'lat': location.lat(), 'long': location.lng()};
+      this.getAddress(location.lat(), location.lng());
+      let options = {
+        center: location,
+        zoom: 16
+      };
+      this.map.setOptions(options);
+    });
+  }
+
+   createAutocomplete(addressEl: HTMLInputElement): Observable<any> {
+    const autocomplete = new google.maps.places.Autocomplete(addressEl);
+    autocomplete.bindTo('bounds', this.map);
+    return new Observable((sub: any) => {
+      google.maps.event.addListener(autocomplete, 'place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) {
+          sub.error({
+            message: 'Autocomplete returned place with no geometry'
+          });
+        } else {
+          let latLngObj = {'lat': place.geometry.location.lat(), 'long': place.geometry.location.lng()}
+          this.getAddress(place.geometry.location.lat(),  place.geometry.location.lng());
+          sub.next(place.geometry.location);
+        }
+      });
     });
   }
  

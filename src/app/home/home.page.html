@@ -1,4 +1,4 @@
-<ion-header>
+<!-- <ion-header>
   <ion-row>
     <ion-col text-start padding-top>
       <ion-title>Google Map</ion-title>
@@ -10,8 +10,18 @@
       </ion-button>
     </ion-col>
   </ion-row>
-</ion-header>
+</ion-header> -->
+
 <ion-content>
+
+  <ion-buttons float-end class="current-location">
+    <button ion-button icon-only (click)="loadMap()">
+      <img src="./assets/current-location.png" alt="">
+    </button>
+  </ion-buttons>
+  
+    <ion-searchbar autocorrect="off" autocapitalize="off" spellcheck="off" #searchbar placeholder="Search..." class="search-box"></ion-searchbar>
+
 
   <div class="map-wrapper">
     <div id="map_center">
